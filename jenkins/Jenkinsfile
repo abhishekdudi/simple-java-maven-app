@@ -1,7 +1,8 @@
+properties([parameters([string(name: 'Bucket_Name', defaultValue: 'devopscafe-training/Jenkins-wars')])])
 pipeline {
     agent {
         docker {
-            image 'maven:3-alpine'
+            image 'devopscafe/maven-awscli'
             args '-v /root/.m2:/root/.m2'
         }
     }
@@ -9,6 +10,30 @@ pipeline {
         stage('Build') {
             steps {
                 sh 'mvn -B -DskipTests clean package'
+            }
+            post {
+                success  {
+                    emailext  (
+                to: "abhishek.dudi.9@gmail.com",
+                subject: "Job was Successful: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
+                body: """=== Job Details as Below === 
+                  Job Name = '${env.JOB_NAME}'
+                  Job Build Number = '${env.BUILD_NUMBER}'
+                  Build Info @ '${env.BUILD_URL}' 
+                  """
+            )
+                }
+                failure  {
+                    emailext  (
+                to: "abhishek.dudi.9@gmail.com",
+                subject: "Job Failed: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
+                body: """=== Job Details as Below === 
+                  Job Name = '${env.JOB_NAME}'
+                  Job Build Number = '${env.BUILD_NUMBER}'
+                  Build Info @ '${env.BUILD_URL}' 
+                  """
+            )
+                }
             }
         }
         stage('Test') {
@@ -24,6 +49,11 @@ pipeline {
         stage('Deliver') {
             steps {
                 sh './jenkins/scripts/deliver.sh'
+            }
+        }
+        stage('Store-in-S3') {
+            steps {
+                sh "aws s3 cp /var/lib/jenkins/jobs/junkingjenkins/workspace/target/my-app-1.0-SNAPSHOT.jar s3://${params.Bucket_Name}/"
             }
         }
     }
