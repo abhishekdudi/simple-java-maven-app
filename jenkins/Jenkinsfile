@@ -1,4 +1,4 @@
-properties([parameters([string(name: 'Bucket_Name', defaultValue: 'abhi-jenkins')])])
+properties([parameters([string(name: 'Bucket1_Name', defaultValue: 'abhi-jenkins')],[string(name: 'Bucket2_Name', defaultValue: 'packer-intro')])])
 pipeline {
     agent {
         docker {
@@ -13,8 +13,16 @@ pipeline {
             }
             post {
                 success  {
-                    slackSend (message: "SUCCESS: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]' (${env.BUILD_URL})")  
-                }
+                    emailext  (
+                to: "abhishek.dudi.9@gmail.com",
+                subject: "Job was Successful: Job '${env.JOB_NAME} [${env.BUILD_NUMBER}]'",
+                body: """=== Job Details as Below === 
+                  Job Name = '${env.JOB_NAME}'
+                  Job Build Number = '${env.BUILD_NUMBER}'
+                  Build Info @ '${env.BUILD_URL}' 
+                  """  
+                )
+            }
                 failure  {
                     emailext  (
                 to: "abhishek.dudi.9@gmail.com",
@@ -43,9 +51,14 @@ pipeline {
                 sh './jenkins/scripts/deliver.sh'
             }
         }
-        stage('Store-in-S3') {
+        stage('Store-in-S3-Bucket-1') {
             steps {
                 sh "aws s3 cp /var/lib/jenkins/workspace/jenkins-intro/target/my-app-1.0-SNAPSHOT.jar s3://${params.Bucket_Name}/"
+            }
+        }
+        stage('Stage-in-S3-Bucket-2') {
+            steps {
+                sh "aws s3 cp /var/lib/jenkins/workspace/jenkins-intro/target/my-app-1.0-SNAPSHOT.jar s3://$(params.Bucket2_Name}/"
             }
         }
     }
