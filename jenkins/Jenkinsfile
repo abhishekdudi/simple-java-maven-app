@@ -1,4 +1,4 @@
-properties([parameters([string(name: 'Bucket1_Name', defaultValue: 'abhi-jenkins')])])
+properties([parameters([string(name: 'Bucket1_Name', defaultValue: 'abhi-jenkins'),string(name: 'Bucket2_Name', defaultValue: 'packer-intro'])])
 pipeline {
     agent {
         docker {
@@ -54,6 +54,12 @@ pipeline {
         stage('Store-in-S3-Bucket-1') {
             steps {
                 sh "aws s3 cp /var/lib/jenkins/workspace/jenkins-intro/target/my-app-1.0-SNAPSHOT.jar s3://${params.Bucket1_Name}/"
+            }
+        }
+        stage('Stage-in-S3-Bucket-2') {
+            steps {
+                input(message: 'Do u want to proceed?')
+                sh "aws s3 cp /var/lib/jenkins/workspace/jenkins-intro/target/my-app-1.0-SNAPSHOT.jar s3://${params.Bucket2_Name}/"
             }
         }
         
