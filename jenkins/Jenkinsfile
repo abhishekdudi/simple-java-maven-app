@@ -56,8 +56,12 @@ pipeline {
                 sh "aws s3 cp /var/lib/jenkins/workspace/jenkins-intro/target/my-app-1.0-SNAPSHOT.jar s3://${params.Bucket1_Name}/"
             }
         }
+        
         stage('Stage-in-S3-Bucket-2') {
             steps {
+                timeout(time: 15, unit: 'SECONDS') { // change to a convenient timeout for you
+                userInput = input( id: 'Proceed1', message: 'Was this successful?', parameters: [[$class: 'BooleanParameterDefinition', defaultValue: true, description: '', name: 'Please confirm you agree with this']
+        ])
                 sh "aws s3 cp /var/lib/jenkins/workspace/jenkins-intro/target/my-app-1.0-SNAPSHOT.jar s3://${params.Bucket2_Name}/"
             }
         }
