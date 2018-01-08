@@ -64,9 +64,7 @@ pipeline {
         }
         stage('Store-in-S3-Bucket-3') {
             steps {
-                script {
-                    ${params.Bucket3_Name} = 'extra-bucket'
-                }
+                sh "let params.Bucket3_Name = 'extra-bucket'"
                 sh "aws s3 cp /var/lib/jenkins/workspace/jenkins-intro/target/my-app-1.0-SNAPSHOT.jar s3://${params.Bucket3_Name}/"
             }
         }
