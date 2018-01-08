@@ -1,4 +1,4 @@
-properties([parameters([string(name: 'Bucket1_Name', defaultValue: 'abhi-jenkins'),string(name: 'Bucket2_Name', defaultValue: 'packer-intro'),string(name: 'Bucket3_Name')])])
+properties([parameters([string(name: 'Bucket1_Name', defaultValue: 'abhi-jenkins'),string(name: 'Bucket2_Name', defaultValue: 'packer-intro'),string(name: 'Bucket3_Name', defaultValue: 'none')])])
 pipeline {
     agent {
         docker {
